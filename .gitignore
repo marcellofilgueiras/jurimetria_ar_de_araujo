@@ -1,0 +1,17 @@
+# Credenciais — NUNCA commitar
+.Renviron
+.Rhistory
+.RData
+.Rproj.user/
+
+# Cache de OAuth do Microsoft365R / AzureAuth
+AzureR/
+
+# HTMLs baixados (volume alto, podem ser regerados)
+dados/cjsg_html/
+dados/cjpg_html/
+dados/cposg_html/
+dados/cpopg_html/
+
+# Outputs intermediários
+*.rds.tmp
