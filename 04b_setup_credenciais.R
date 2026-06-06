@@ -1,4 +1,4 @@
-# ETAPA 6b — Setup de Credenciais Seguras
+# ETAPA 4b — Setup de Credenciais Seguras
 #
 # Este script explica como manter suas credenciais ESAJ de forma segura.
 # Não precisa rodar — é só referência/documentação.
@@ -13,7 +13,7 @@
 #    - Risco: Nenhum (CPF é semi-público)
 #    - Status: ✅ Seguro, pode commitar
 
-# 2. PASSWORDADV → digitada interativamente no script 06_autenticar.R
+# 2. PASSWORDADV → digitada interativamente no script 04_autenticar.R
 #    - Nunca salva em arquivo
 #    - Armazenada só na memória da sessão R
 #    - Quando fecha R: memória é limpa automaticamente
@@ -25,14 +25,14 @@
 
 # 1. Abra RStudio (ou R)
 # 2. Rode este comando:
-#    source("06_autenticar.R")
+#    source("04_autenticar.R")
 # 3. Script pede: "Digite sua senha ESAJ (CPF: 11184318638): "
 # 4. Digite sua senha (não aparece na tela — está protegida)
 # 5. Script autentica automaticamente usando:
 #    - Microsoft365R: busca token 2FA no email (Gmail/Outlook)
 #    - ESAJ: faz login usando CPF + senha que você digitou
 # 6. Se sucesso: ✓ mensagem de confirmação
-# 7. Pode agora rodar 07_baixar_cposg.R e 08_baixar_cpopg.R
+# 7. Pode agora rodar 05_baixar_cposg.R e 06_baixar_cpopg.R
 
 # ────────────────────────────────────────────────────────────────────────────
 # SEGURANÇA: Por que é seguro?
@@ -61,7 +61,7 @@
 # ────────────────────────────────────────────────────────────────────────────
 
 # Não precisa fazer nada!
-# Na próxima vez que rodar 06_autenticar.R, ele pede a nova senha interativamente.
+# Na próxima vez que rodar 04_autenticar.R, ele pede a nova senha interativamente.
 # Nenhum arquivo precisa ser atualizado.
 
 # ────────────────────────────────────────────────────────────────────────────
@@ -73,7 +73,7 @@
 #    Rode: Sys.getenv("LOGINADV")
 
 # P: "Erro ao autenticar"
-# R: Verifique que rodou 06a_setup_outlook.R antes
+# R: Verifique que rodou 04a_setup_outlook.R antes
 #    Verifique que seu email Outlook (marcellofilgueiras@outlook.com)
 #    tem acesso aos tokens ESAJ
 
@@ -87,5 +87,5 @@
 
 message(
   "\nℹ️  Este é um arquivo de referência.\n",
-  "Para autenticar, rode: source('06_autenticar.R')\n"
+  "Para autenticar, rode: source('04_autenticar.R')\n"
 )

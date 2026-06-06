@@ -15,3 +15,10 @@ dados/cpopg_html/
 
 # Outputs intermediários
 *.rds.tmp
+.positai
+
+# Assets dos HTMLs gerados por htmlwidgets (jquery, datatables, etc.) — reprodutíveis
+analise/*_files/
+_inspect.R
+_chk.R
+_dup.R

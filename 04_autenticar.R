@@ -1,10 +1,10 @@
-# ETAPA 6 — Autenticação no ESAJ (login 2FA via Outlook pessoal)
+# ETAPA 4 — Autenticação no ESAJ (login 2FA via Outlook pessoal)
 #
 # Pré-requisitos (rodar UMA VEZ, na ordem):
-#   1) 06a_setup_outlook.R  → autoriza Microsoft365R a ler seu email
+#   1) 04a_setup_outlook.R  → autoriza Microsoft365R a ler seu email
 #   2) .Renviron contém LOGINADV (CPF) — PASSWORDADV é digitada aqui
 #
-# Cada nova sessão R precisa rodar este script antes de 07/08.
+# Cada nova sessão R precisa rodar este script antes de 05/06.
 # ⚠️ Este script PEDE SUA SENHA INTERATIVAMENTE — ela não fica salva em arquivo
 
 library(tjsp)
@@ -47,5 +47,5 @@ tjsp_autenticar(login = LOGINADV,
 
 
 # ✓ Você pode agora rodar:\n")
-# - 07_baixar_cposg.R  (2ª instância, ~5 min)\n")
-# - 08_baixar_cpopg.R  (1ª instância, ~4 min)\n\n")
+# - 05_baixar_cposg.R  (2ª instância, ~5 min)\n")
+# - 06_baixar_cpopg.R  (1ª instância, ~4 min)\n\n")

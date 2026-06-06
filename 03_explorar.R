@@ -1,5 +1,5 @@
-# ETAPA 4 — Análise exploratória
-# Rodar após 03_compilar.R
+# ETAPA 3 — Análise exploratória (não escreve nada — só explora)
+# Rodar após 02_compilar.R
 
 library(tidyverse)
 
@@ -73,19 +73,7 @@ cjsg <- cjsg |>
                               ementa, ignore.case = TRUE)
   )
 
-cjpg <- cjpg |>
-  mutate(
-    tem_protesto  = grepl("protesto indevido|protesto irregular|protesto ilegal|apontamento indevido",
-                          julgado, ignore.case = TRUE),
-    tem_danos     = grepl("dano(s)? moral(is)?|indeniza",
-                          julgado, ignore.case = TRUE),
-    tem_duplicata = grepl("duplicata|título(s)? sem causa|título mercantil|duplicata simulada|duplicata fria",
-                          julgado, ignore.case = TRUE),
-    tem_contrato      = grepl("ausência de contrato|inexistência de contrato|contrato não celebrado|sem relação contratual",
-                              julgado, ignore.case = TRUE),
-    tem_rel_juridica  = grepl("relação jurídica inexistente|ausência de relação jurídica|inexistência de relação jurídica",
-                              julgado, ignore.case = TRUE)
-  )
+# Flags temáticas (tem_protesto, tem_danos, etc.) agora vivem em 09_enriquecer.R
 
 cat("\n=== FLAGS TEMÁTICAS — 2ª INSTÂNCIA (acórdãos) ===\n")
 cjsg |>
@@ -206,11 +194,10 @@ valores_2a |>
   print()
 
 # ── Salvar ────────────────────────────────────────────────────────────────────
-# Persiste os datasets COM as flags para uso nas etapas 09–11
-saveRDS(cjsg, file.path(DIR_COMPILADO, "cjsg.rds"))
-saveRDS(cjpg, file.path(DIR_COMPILADO, "cjpg.rds"))
-write.csv(cjsg, file.path(DIR_COMPILADO, "cjsg.csv"), row.names = FALSE, fileEncoding = "UTF-8")
-write.csv(cjpg, file.path(DIR_COMPILADO, "cjpg.csv"), row.names = FALSE, fileEncoding = "UTF-8")
+# IMPORTANTE: este script é só exploratório, NÃO sobrescreve cjsg/cjpg.
+# O enriquecimento (flags, papel, favorabilidade, valor, etc.) é feito por
+# 09 → 10_11 → 14, que são os únicos a salvar os .rds principais.
+# (cjsg.csv/cjpg.csv também não são reescritos aqui — saem do 14)
 
 resumo <- list(
   total_acordaos      = nrow(cjsg),
@@ -220,12 +207,16 @@ resumo <- list(
   por_comarca_cjsg    = cjsg |> count(comarca, sort = TRUE) |> head(20),
   por_ano_cjpg        = cjpg |> mutate(ano = year(disponibilizacao)) |> count(ano),
   por_comarca_cjpg    = cjpg |> count(comarca, sort = TRUE) |> head(20),
-  flags_cjsg          = cjsg |> summarise(across(starts_with("tem_"), \(x) sum(x, na.rm = TRUE))),
-  flags_cjpg          = cjpg |> summarise(across(starts_with("tem_"), \(x) sum(x, na.rm = TRUE))),
+  flags_cjsg          = if (any(str_starts(names(cjsg), "tem_"))) {
+                          cjsg |> summarise(across(starts_with("tem_"), \(x) sum(x, na.rm = TRUE)))
+                        } else NULL,
+  flags_cjpg          = if (any(str_starts(names(cjpg), "tem_"))) {
+                          cjpg |> summarise(across(starts_with("tem_"), \(x) sum(x, na.rm = TRUE)))
+                        } else NULL,
 #  velocidade_1a       = velocidade_1a |> summarise(mediana_dias = median(dias), media_dias = mean(dias)),
   valores_indenizacao = valores_2a    |> summarise(mediana = median(valor_num), media = mean(valor_num), n = n())
 )
 
 
 saveRDS(resumo, file.path(DIR_ANALISE, "resumo_analise.rds"))
-message("Etapa 4 concluída.")
+message("Etapa 3 concluída (exploratória — nada salvo).")

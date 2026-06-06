@@ -1,8 +1,8 @@
-# ETAPA 8 — Download dos detalhes dos processos de 1ª instância (cpopg)
+# ETAPA 6 — Download dos detalhes dos processos de 1ª instância (cpopg)
 # Baixa o HTML completo de cada processo já identificado em cjpg
 # Necessário para extrair PARTES (sentenças já foram capturadas na etapa 02)
 #
-# ⚠️ PRÉ-REQUISITO: rodar 06_autenticar.R nesta mesma sessão R
+# ⚠️ PRÉ-REQUISITO: rodar 04_autenticar.R nesta mesma sessão R
 # ⚠️ Pode demorar (~1s por processo) — 243 processos ≈ 4 min
 
 library(tjsp)
@@ -25,4 +25,4 @@ tjsp_baixar_cpopg(
   diretorio = DIR_CPOPG
 )
 
-message("Etapa 8 concluída. HTMLs em: ", DIR_CPOPG)
+message("Etapa 6 concluída. HTMLs em: ", DIR_CPOPG)

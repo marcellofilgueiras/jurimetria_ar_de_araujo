@@ -1,4 +1,4 @@
-# ETAPA 12 — Relatório Jurimétrico para Petição Inicial
+# ETAPA 13 — Relatório Jurimétrico para Petição Inicial
 #
 # Objeto: A R de Araújo Comunicações ME (Guia Plus / Lista Regional Brasil)
 # Parte autora: Sociedade Comercial FAM Ltda
@@ -233,7 +233,7 @@ cat(sep, "\n\n")
 
 # ── Salva output em texto ─────────────────────────────────────────────────────
 sink(file.path(DIR_ANALISE, "relatorio_jurimetrico.txt"))
-source(sys.frame(1)$ofile %||% "12_relatorio.R")
+source(sys.frame(1)$ofile %||% "13_relatorio.R")
 sink()
 
-message("Etapa 12 concluída. Relatório em: ", DIR_ANALISE)
+message("Etapa 13 concluída. Relatório em: ", DIR_ANALISE)

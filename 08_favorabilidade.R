@@ -1,4 +1,4 @@
-# ETAPA 10+11 — Dispositivo + Favorabilidade
+# ETAPA 8 — Dispositivo + Favorabilidade
 #
 # Enriquece cjsg e cjpg com novas colunas (não cria dfs separados):
 #   cjsg$dispositivo           → texto do dispositivo do acórdão
@@ -22,9 +22,7 @@ DIR_PARTES    <- "C:/Users/marce/OneDrive/Documents/R2/jurimetria_thierry/dados/
 DIR_CPOSG     <- "C:/Users/marce/OneDrive/Documents/R2/jurimetria_thierry/dados/cposg_html"
 DIR_ANALISE   <- "C:/Users/marce/OneDrive/Documents/R2/jurimetria_thierry/analise"
 
-# Regex ampliado para capturar todas as variações do nome encontradas nos dados:
-# "A R de Araújo", "A.R. de Araujo", "Ar de Araujo", "AR de Araújo", "Guia Plus", etc.
-EMPRESA_RGX <- "(?i)(A[.\\s]?R[.\\s]*\\s*de\\s+Ara[uú]jo|guia[\\s.]*plus|guia[\\s.]*mais|lista[\\s.]*regional)"
+source("C:/Users/marce/OneDrive/Documents/R2/jurimetria_thierry/_helpers.R")
 
 # ── Carrega bases ─────────────────────────────────────────────────────────────
 cjsg        <- readRDS(file.path(DIR_COMPILADO, "cjsg.rds"))
@@ -69,7 +67,7 @@ calcular_favorabilidade <- function(papel, resultado) {
     # "nao conhecido" e "prejudicado/extinto" → verificar caso a caso
     # "embargos rejeitados" → decisão acessória, não classifica o mérito
     #
-    # Implementar na ETAPA 13 após validação com amostra manual.
+    # Implementar em script separado após validação manual.
   )
 }
 
@@ -206,6 +204,6 @@ saveRDS(cjpg, file.path(DIR_COMPILADO, "cjpg.rds"))
 write.csv(cjsg, file.path(DIR_COMPILADO, "cjsg.csv"), row.names = FALSE, fileEncoding = "UTF-8")
 write.csv(cjpg, file.path(DIR_COMPILADO, "cjpg.csv"), row.names = FALSE, fileEncoding = "UTF-8")
 
-message("\nEtapa 10+11 concluida. cjsg e cjpg enriquecidos em: ", DIR_COMPILADO)
+message("\nEtapa 8 concluida. cjsg e cjpg enriquecidos em: ", DIR_COMPILADO)
 message("Colunas novas em cjsg: dispositivo, papel, resultado_dispositivo, favorabilidade")
 message("Colunas novas em cjpg: papel, resultado_dispositivo, favorabilidade")

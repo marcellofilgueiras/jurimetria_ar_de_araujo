@@ -1,8 +1,8 @@
-# ETAPA 7 — Download dos detalhes dos processos de 2ª instância (cposg)
+# ETAPA 5 — Download dos detalhes dos processos de 2ª instância (cposg)
 # Baixa o HTML completo de cada processo já identificado em cjsg
 # Necessário para extrair PARTES e DISPOSITIVO
 #
-# ⚠️ PRÉ-REQUISITO: rodar 06_autenticar.R nesta mesma sessão R
+# ⚠️ PRÉ-REQUISITO: rodar 04_autenticar.R nesta mesma sessão R
 # ⚠️ Pode demorar (~1s por processo) — 271 processos ≈ 5 min
 
 library(tjsp)
@@ -24,4 +24,4 @@ tjsp_baixar_cposg(
   diretorio = DIR_CPOSG
 )
 
-message("Etapa 7 concluída. HTMLs em: ", DIR_CPOSG)
+message("Etapa 5 concluída. HTMLs em: ", DIR_CPOSG)

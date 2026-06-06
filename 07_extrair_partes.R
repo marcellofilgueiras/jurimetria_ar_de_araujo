@@ -1,5 +1,5 @@
-# ETAPA 9 — Extração das PARTES dos processos
-# Lê os HTMLs baixados nas etapas 07 e 08 e produz tabela de partes
+# ETAPA 7 — Extração das PARTES dos processos
+# Lê os HTMLs baixados nas etapas 05 e 06 e produz tabela de partes
 #
 # Saída de tjsp_ler_partes:
 #   - processo       : nº CNJ
@@ -20,7 +20,7 @@ DIR_CPOSG   <- "C:/Users/marce/OneDrive/Documents/R2/jurimetria_thierry/dados/cp
 DIR_CPOPG   <- "C:/Users/marce/OneDrive/Documents/R2/jurimetria_thierry/dados/cpopg_html"
 DIR_PARTES  <- "C:/Users/marce/OneDrive/Documents/R2/jurimetria_thierry/dados/partes"
 
-EMPRESA_RGX <- "(?i)A\\s*R\\s+de\\s+Ara[uú]jo\\s+Comunica[cç][oõ]es"
+source("C:/Users/marce/OneDrive/Documents/R2/jurimetria_thierry/_helpers.R")
 
 # ── Partes da 2ª instância ───────────────────────────────────────────────────
 message("Lendo partes do cposg (2ª inst.) ...")
@@ -59,4 +59,4 @@ saveRDS(partes_todas, file.path(DIR_PARTES, "partes_todas.rds"))
 write.csv(partes_todas, file.path(DIR_PARTES, "partes_todas.csv"),
           row.names = FALSE, fileEncoding = "UTF-8")
 
-message("Etapa 9 concluída. Arquivos em: ", DIR_PARTES)
+message("Etapa 7 concluída. Arquivos em: ", DIR_PARTES)

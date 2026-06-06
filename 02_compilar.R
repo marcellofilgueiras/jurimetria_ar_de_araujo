@@ -1,5 +1,5 @@
-# ETAPA 3 — Leitura dos HTMLs e compilação em tabelas estruturadas
-# Rodar após as etapas 01 e 02
+# ETAPA 2 — Leitura dos HTMLs e compilação em tabelas estruturadas
+# Rodar após a etapa 01
 
 library(tjsp)
 library(tidyverse)
@@ -43,5 +43,5 @@ saveRDS(todos, file.path(DIR_COMPILADO, "processos_unicos.rds"))
 write.csv(todos, file.path(DIR_COMPILADO, "processos_unicos.csv"),
           row.names = FALSE, fileEncoding = "UTF-8")
 
-message("Etapa 3 concluída. Arquivos em: ", DIR_COMPILADO)
+message("Etapa 2 concluída. Arquivos em: ", DIR_COMPILADO)
 
