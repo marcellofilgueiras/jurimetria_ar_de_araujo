@@ -104,6 +104,16 @@ tabela <- datatable(
       c("#d4edda",           "#f8d7da",        "#fff3cd")    # verde / vermelho / amarelo
     )
   ) |>
+  # Zebra discreta por processo — útil para visualizar duplicatas agrupadas
+  formatStyle(
+    "processo",
+    target = "row",
+    backgroundColor = styleEqual(
+      unique(df_view$processo),
+      rep(c("#ffffff", "#fafafa"),
+          length.out = n_distinct(df_view$processo))
+    )
+  ) |>
   formatStyle(
     "resultado_dispositivo",
     color = styleEqual(

@@ -1,5 +1,5 @@
 # Projeto: jurimetria_thierry
-# Repositório: https://github.com/marcellofilgueiras/jurimetria_thierry
+# Repositório: https://github.com/marcellofilgueiras/jurimetria_ar_de_araujo
 # Local: C:\Users\marce\OneDrive\Documents\R2\jurimetria_thierry\
 
 ## CONTEXTO
@@ -29,10 +29,10 @@ _helpers.R                → EMPRESA_RGX, CLASSES_MERITO, CLASSES_EXECUCAO (sou
 07_extrair_partes.R       → extrai partes, classifica papel da empresa
 08_favorabilidade.R       → dispositivo + papel + favorabilidade
 09_enriquecer.R           → flags temáticas, valor, tipo_decisao_cpc, decisão canônica
-10_dt_validacao.R         → DT interativa para validar todas as sentenças
-11_dt_duplicatas.R        → DT focada nas 25 duplicatas
-12_wordcloud.R            → nuvens de palavras (geral + consumidor_venceu)
-13_relatorio.R            → relatório jurimétrico .docx
+10_dt_validacao.R         → DT interativa (todas as sentenças, com zebra por processo)
+11_graficos.R             → 6 PNGs em analise/graficos/ (série, comarcas, valor, facets)
+12_precedentes.R          → top 30 precedentes campeões (CSV + DT navegável)
+13_relatorio.R            → relatório jurimétrico (.txt) + 2 word clouds (.html)
 
 ## ARQUIVOS DE DADOS
 dados/compilados/cjsg.rds        → acórdãos (papel, favorabilidade, flags temáticas)
@@ -67,7 +67,7 @@ analise/relatorio_juriometrico.docx
 3. Ampliar extração de valores de indenização
    Apenas 6 valores extraídos das ementas. Usar dispositivos completos.
 
-4. Relatório Word (13_relatorio.R)
+4. Relatório Word (11_relatorio.R)
    officer + flextable instalados. Script criado mas docx ainda básico.
    Formatar melhor para protocolo judicial.
 

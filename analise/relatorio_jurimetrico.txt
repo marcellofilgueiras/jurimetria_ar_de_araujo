@@ -1,0 +1,178 @@
+
+====================================================================== 
+  RELATÓRIO JURIMÉTRICO
+  A R DE ARAÚJO COMUNICAÇÕES ME (GUIA PLUS / LISTA REGIONAL BRASIL)
+  Tribunal de Justiça do Estado de São Paulo — 1ª instância
+====================================================================== 
+  Gerado em: 07/06/2026 14:09 
+====================================================================== 
+
+---------------------------------------------------------------------- 
+0. SUMÁRIO EXECUTIVO
+---------------------------------------------------------------------- 
+  • Base: 243 sentenças únicas de 1ª instância (2017–2026)
+  • Em 207 sentenças, a empresa figura como RÉ (85.2%)
+  • Em 159 de 180 decisões de mérito, a solução foi PRÓ-CONSUMIDOR (88.3%)
+  • Indenização: mediana R$ 4.200 (média R$ 4.882)
+  • Tempo entre ajuizamento e sentença: mediana 162 dias (~5.4 meses)
+  • Tutela de urgência deferida: 30 sentenças (12.3%)
+
+---------------------------------------------------------------------- 
+1. VOLUME DE PROCESSOS
+---------------------------------------------------------------------- 
+  Sentenças 1ª inst. coletadas       : 270 (todas as linhas)
+  Sentenças canônicas (sem duplicat.) : 243
+  Acórdãos 2ª inst. coletados         : 62
+  Processos únicos (todos)            : 290
+
+---------------------------------------------------------------------- 
+2. ANO DA SENTENÇA — 1ª INSTÂNCIA (canônicas)
+---------------------------------------------------------------------- 
+    2017 :   5 sentenças ( 2.1%)
+    2018 :  27 sentenças (11.1%)
+    2019 :  24 sentenças ( 9.9%)
+    2020 :  26 sentenças (10.7%)
+    2021 :  24 sentenças ( 9.9%)
+    2022 :  26 sentenças (10.7%)
+    2023 :  44 sentenças (18.1%)
+    2024 :  30 sentenças (12.3%)
+    2025 :  31 sentenças (12.8%)
+    2026 :   6 sentenças ( 2.5%)
+
+  (2026 em curso — ano incompleto)
+
+---------------------------------------------------------------------- 
+3. DISTRIBUIÇÃO GEOGRÁFICA — TOP 15 COMARCAS (1ª inst.)
+---------------------------------------------------------------------- 
+    SÃO PAULO                     :  74 (30.5%)
+    Franca                         :   8 ( 3.3%)
+    Jaboticabal                    :   7 ( 2.9%)
+    São José do Rio Preto        :   7 ( 2.9%)
+    Marília                       :   6 ( 2.5%)
+    Ribeirão Preto                :   6 ( 2.5%)
+    Campinas                       :   5 ( 2.1%)
+    Rio Claro                      :   5 ( 2.1%)
+    Sorocaba                       :   5 ( 2.1%)
+    Limeira                        :   4 ( 1.6%)
+    Piracicaba                     :   4 ( 1.6%)
+    Adamantina                     :   3 ( 1.2%)
+    Araraquara                     :   3 ( 1.2%)
+    Araçatuba                     :   3 ( 1.2%)
+    Bauru                          :   3 ( 1.2%)
+
+---------------------------------------------------------------------- 
+4. POLO DA AÇÃO — A R de Araújo é RÉ em quase todos os processos
+---------------------------------------------------------------------- 
+    re         : 207 (96.7%)
+    autora     :   7 ( 3.3%)
+    (29 sentenças sem papel identificado)
+
+---------------------------------------------------------------------- 
+5. NATUREZA DAS DECISÕES (CPC)
+---------------------------------------------------------------------- 
+    merito_487_I              : 169 (69.5%)
+    homologacao_487_III       :  39 (16.0%)
+    extincao_execucao_924     :  24 ( 9.9%)
+    extincao_sem_merito_485   :   8 ( 3.3%)
+    execucao_outros           :   3 ( 1.2%)
+
+  Legenda:
+    merito_487_I            → sentença de mérito (art. 487, I, CPC)
+    homologacao_487_III     → homologação de acordo / transação (487, III)
+    extincao_execucao_924   → cumprimento de sentença extinto pelo pagamento (924)
+    extincao_sem_merito_485 → extinção sem mérito (art. 485)
+
+---------------------------------------------------------------------- 
+6. RESULTADO POR PAPEL DA EMPRESA — 1ª INSTÂNCIA (decisões de mérito)
+---------------------------------------------------------------------- 
+
+  Empresa como RE (n=180):
+    homologacao     :  28 (15.6%)
+    improcedente    :  21 (11.7%)
+    parcial         :  68 (37.8%)
+    procedente      :  63 (35.0%)
+
+  Empresa como AUTORA (n=4):
+    parcial         :   2 (50.0%)
+    procedente      :   2 (50.0%)
+
+
+  >>> TAXA PRÓ-CONSUMIDOR (decisões de mérito): 88.3% (159 de 180)
+
+---------------------------------------------------------------------- 
+7. VALORES DE INDENIZAÇÃO — 1ª INSTÂNCIA
+   (extraídos do DISPOSITIVO de cada sentença canônica)
+---------------------------------------------------------------------- 
+  Sentenças com valor identificado : 53
+  Valor mínimo                     : R$ 500
+  P25                              : R$ 1.500
+  Mediana                          : R$ 4.200
+  Média                            : R$ 4.882
+  P75                              : R$ 5.000
+  Valor máximo                     : R$ 52.800
+
+  Faixas de valor:
+    R$ 5.001 a R$ 10.000      :  17 (32.1%)
+    até R$ 2.000             :  17 (32.1%)
+    R$ 2.001 a R$ 5.000       :  13 (24.5%)
+    R$ 10.001 a R$ 20.000     :   5 ( 9.4%)
+    acima de R$ 20.000        :   1 ( 1.9%)
+
+---------------------------------------------------------------------- 
+8. TEMPO ENTRE AJUIZAMENTO E SENTENÇA
+   (decisões de mérito, empresa ré, processos com data calculável)
+---------------------------------------------------------------------- 
+  Sentenças analisadas      : 149
+  Tempo MÍNIMO              : 1 dias
+  P25                       : 115 dias
+  MEDIANA                   : 195 dias (~6.5 meses)
+  MÉDIA                     : 265 dias (~8.8 meses)
+  P75                       : 366 dias
+  Tempo MÁXIMO              : 1023 dias
+
+  Faixas de tempo:
+    Até 6 meses         :  68 (45.6%)
+    6 meses a 1 ano      :  43 (28.9%)
+    1 a 2 anos           :  31 (20.8%)
+    2 a 3 anos           :   7 ( 4.7%)
+
+---------------------------------------------------------------------- 
+9. INDICADORES PROCESSUAIS
+---------------------------------------------------------------------- 
+  Tutela de urgência deferida      :  30 sentenças (12.3%)
+  Revelia declarada                :  36 sentenças (14.8%)
+
+---------------------------------------------------------------------- 
+10. TEMAS IDENTIFICADOS NAS SENTENÇAS
+---------------------------------------------------------------------- 
+    Protesto indevido              :  40 (16.5%)
+    Danos morais                   : 117 (48.1%)
+    Duplicata                      :  37 (15.2%)
+    Ausência de contrato          :   8 ( 3.3%)
+    Relação jurídica inexistente :  35 (14.4%)
+
+---------------------------------------------------------------------- 
+11. ANEXOS GERADOS NESTA PESQUISA
+---------------------------------------------------------------------- 
+  Em analise/graficos/:
+    01_serie_temporal.png             — sentenças por ano
+    02_top_comarcas.png               — top 12 comarcas
+    03_valor_mediana_por_ano.png      — evolução do quantum
+    04_histograma_valores.png         — distribuição dos valores
+    05_facet_procedencia_por_papel.png — resultado por papel
+    06_pro_contra_consumidor.png      — síntese pró/contra consumidor
+    07_tempo_tramitacao.png           — tempo entre ajuizamento e sentença
+
+  Em analise/:
+    validacao_julgados_1a.html        — DT navegável com todas as 270 sentenças
+    precedentes_campeoes.html         — top 30 precedentes mais citáveis
+    precedentes_campeoes.csv          — idem em CSV (Excel)
+    wordcloud_julgados_1a.html        — nuvem de todos os julgados
+    wordcloud_consumidor_venceu.html  — nuvem só dos casos pró-consumidor
+
+====================================================================== 
+  Fonte: TJSP — ESAJ (dados públicos)
+  Metodologia: coleta automatizada via pacote {tjsp} (R)
+  Pipeline: scripts 01–13 em jurimetria_thierry/
+====================================================================== 
+
