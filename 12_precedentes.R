@@ -5,7 +5,7 @@
 #       tem_protesto, tem_duplicata, tem_rel_juridica, tem_contrato
 #   + tem_tutela_deferida → ganha ponto (liminar, item do pedido da FAM)
 #   + resultado_dispositivo == "procedente" (integral) → mais forte que parcial
-#   + valor_indenizacao >= mediana (R$ 4.200) → robustece o quantum
+#   + valor_morais >= mediana (R$ 4.200) → robustece o quantum
 #
 # Saídas:
 #   analise/precedentes_campeoes.csv
@@ -31,7 +31,7 @@ elegiveis <- cjpg |>
 cat("Universo de sentenças elegíveis:", nrow(elegiveis), "\n")
 
 # ── 2. Score de força para citação ───────────────────────────────────────
-mediana_val <- median(cjpg$valor_indenizacao, na.rm = TRUE)
+mediana_val <- median(cjpg$valor_morais, na.rm = TRUE)
 
 scored <- elegiveis |>
   mutate(
@@ -41,11 +41,11 @@ scored <- elegiveis |>
                   as.integer(tem_contrato),                  # 0–4
     score_proced = if_else(resultado_dispositivo == "procedente", 1L, 0L),
     score_tutela = if_else(coalesce(tem_tutela_deferida, FALSE), 1L, 0L),
-    score_valor  = if_else(!is.na(valor_indenizacao) & valor_indenizacao >= mediana_val,
+    score_valor  = if_else(!is.na(valor_morais) & valor_morais >= mediana_val,
                            1L, 0L),
     score_total  = score_temas + score_proced + score_tutela + score_valor
   ) |>
-  arrange(desc(score_total), desc(valor_indenizacao), desc(disponibilizacao))
+  arrange(desc(score_total), desc(valor_morais), desc(disponibilizacao))
 
 cat("\nDistribuição do score_total:\n")
 print(table(scored$score_total))
@@ -63,7 +63,7 @@ top <- scored |>
   select(
     score_total, score_temas, score_proced, score_tutela, score_valor,
     processo, data, ano, comarca, vara, magistrado,
-    resultado_dispositivo, valor_indenizacao,
+    resultado_dispositivo, valor_morais,
     tem_protesto, tem_duplicata, tem_rel_juridica, tem_contrato, tem_tutela_deferida,
     dispositivo_trecho, dispositivo_txt
   )
@@ -119,7 +119,7 @@ tabela <- datatable(
     backgroundColor = styleEqual(c("procedente", "parcial"),
                                  c("#d4edda",   "#fff3cd"))
   ) |>
-  formatCurrency("valor_indenizacao", currency = "R$ ",
+  formatCurrency("valor_morais", currency = "R$ ",
                  mark = ".", dec.mark = ",", digits = 0)
 
 html_out <- normalizePath("analise/precedentes_campeoes.html", mustWork = FALSE)
@@ -132,5 +132,5 @@ cat("\n=== TOP 10 precedentes (score) ===\n")
 top |>
   slice_head(n = 10) |>
   select(processo, comarca, magistrado, resultado_dispositivo,
-         valor_indenizacao, score_total) |>
+         valor_morais, score_total) |>
   print(n = Inf)

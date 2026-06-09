@@ -57,8 +57,8 @@ n_pro     <- sum(merito_re$resultado_dispositivo %in% c("procedente","parcial","
 n_contra  <- sum(merito_re$resultado_dispositivo == "improcedente")
 pct_pro   <- 100 * n_pro / nrow(merito_re)
 
-med_val   <- median(cjpg_can$valor_indenizacao, na.rm = TRUE)
-mean_val  <- mean(cjpg_can$valor_indenizacao,   na.rm = TRUE)
+med_val   <- median(cjpg_can$valor_morais, na.rm = TRUE)
+mean_val  <- mean(cjpg_can$valor_morais,   na.rm = TRUE)
 
 med_tempo <- median(cjpg_can$tempo_tramitacao_dias, na.rm = TRUE)
 
@@ -177,36 +177,36 @@ for (p in c("re", "autora")) {
 cat(sprintf("\n\n  >>> TAXA PRÓ-CONSUMIDOR (decisões de mérito): %.1f%% (%d de %d)\n\n",
             pct_pro, n_pro, nrow(merito_re)))
 
-# ── 7. VALORES DE INDENIZAÇÃO ─────────────────────────────────────────────────
+# ── 7. VALORES DE CONDENAÇÃO ────────────────────────────────────────────────
 cat(sep2, "\n")
-cat("7. VALORES DE INDENIZAÇÃO — 1ª INSTÂNCIA\n")
-cat("   (extraídos do DISPOSITIVO de cada sentença canônica)\n")
+cat("7. VALORES DE CONDENAÇÃO — DANOS MORAIS (1ª instância)\n")
+cat("   (extraídos do DISPOSITIVO, classificados por contexto)\n")
 cat(sep2, "\n")
 
-valores <- cjpg_can |> filter(!is.na(valor_indenizacao))
+valores <- cjpg_can |> filter(!is.na(valor_morais))
 
 if (nrow(valores) > 0) {
   cat(sprintf("  Sentenças com valor identificado : %d\n", nrow(valores)))
   cat(sprintf("  Valor mínimo                     : R$ %s\n",
-              fmt_brl(min(valores$valor_indenizacao))))
+              fmt_brl(min(valores$valor_morais))))
   cat(sprintf("  P25                              : R$ %s\n",
-              fmt_brl(quantile(valores$valor_indenizacao, 0.25))))
+              fmt_brl(quantile(valores$valor_morais, 0.25))))
   cat(sprintf("  Mediana                          : R$ %s\n",
-              fmt_brl(median(valores$valor_indenizacao))))
+              fmt_brl(median(valores$valor_morais))))
   cat(sprintf("  Média                            : R$ %s\n",
-              fmt_brl(mean(valores$valor_indenizacao))))
+              fmt_brl(mean(valores$valor_morais))))
   cat(sprintf("  P75                              : R$ %s\n",
-              fmt_brl(quantile(valores$valor_indenizacao, 0.75))))
+              fmt_brl(quantile(valores$valor_morais, 0.75))))
   cat(sprintf("  Valor máximo                     : R$ %s\n\n",
-              fmt_brl(max(valores$valor_indenizacao))))
+              fmt_brl(max(valores$valor_morais))))
 
   cat("  Faixas de valor:\n")
   valores |>
     mutate(faixa = case_when(
-      valor_indenizacao <  2000 ~ "até R$ 2.000",
-      valor_indenizacao <  5000 ~ "R$ 2.001 a R$ 5.000",
-      valor_indenizacao < 10000 ~ "R$ 5.001 a R$ 10.000",
-      valor_indenizacao < 20000 ~ "R$ 10.001 a R$ 20.000",
+      valor_morais <  2000 ~ "até R$ 2.000",
+      valor_morais <  5000 ~ "R$ 2.001 a R$ 5.000",
+      valor_morais < 10000 ~ "R$ 5.001 a R$ 10.000",
+      valor_morais < 20000 ~ "R$ 10.001 a R$ 20.000",
       TRUE                      ~ "acima de R$ 20.000"
     )) |>
     count(faixa, sort = TRUE) |>
@@ -215,6 +215,24 @@ if (nrow(valores) > 0) {
     pull(linha) |> cat(sep = "\n")
 } else {
   cat("  Nenhum valor identificado.\n")
+}
+cat("\n")
+
+# ── 7b. DANOS MATERIAIS (devolução / restituição) ───────────────────────────
+cat(sep2, "\n")
+cat("7b. CONDENAÇÕES EM DANOS MATERIAIS / DEVOLUÇÃO (1ª instância)\n")
+cat(sep2, "\n")
+mat <- cjpg_can |> filter(!is.na(valor_materiais))
+if (nrow(mat) > 0) {
+  cat(sprintf("  Sentenças com devolução/material : %d\n", nrow(mat)))
+  cat(sprintf("  Mediana                          : R$ %s\n",
+              fmt_brl(median(mat$valor_materiais))))
+  cat(sprintf("  Média                            : R$ %s\n",
+              fmt_brl(mean(mat$valor_materiais))))
+  cat(sprintf("  Máximo                           : R$ %s\n",
+              fmt_brl(max(mat$valor_materiais))))
+} else {
+  cat("  Nenhum valor material identificado.\n")
 }
 cat("\n")
 

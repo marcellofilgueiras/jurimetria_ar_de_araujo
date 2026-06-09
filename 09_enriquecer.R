@@ -74,37 +74,118 @@ extrair_dispositivo <- function(txt) {
 
 # Extrai TODOS os R$ do dispositivo e fica com o primeiro vinculado a
 # "dano(s) moral(is)" / "condeno" / "indeniza" / "importe de"
-extrair_valor_condenacao <- function(dispositivo) {
-  if (is.na(dispositivo) || nchar(dispositivo) == 0) return(NA_real_)
+# Regex de valor monetário aceita:
+#   R$ 1.000,00  (com ponto de milhar e centavos)
+#   R$ 1000,00   (sem ponto de milhar — bug do escrivão)
+#   R$ 1.000     (sem centavos)
+#   R$ 1000      (idem)
+# Captura grupos: [valor_inteiro]
+RGX_DINHEIRO <- "R\\$\\s?([0-9]+(?:\\.[0-9]{3})*(?:,[0-9]{2})?)"
 
-  # captura padrões: "danos morais ... R$ X" / "condeno ... R$ X" /
-  # "indeniza... R$ X" / "importe de R$ X" / "valor de R$ X"
-  rgx_contextual <- regex(
-    "(dano(s)?\\s+moral(is)?|condeno|indeniza[çc][ãa]o|
-      importe\\s+de|valor\\s+de|quantia\\s+de|montante\\s+de|
-      a\\s+t[íi]tulo\\s+de\\s+danos)
-     [^R$]{0,200}
-     R\\$\\s?([0-9]{1,3}(?:\\.[0-9]{3})*(?:,[0-9]{2})?)",
-    ignore_case = TRUE, comments = TRUE
-  )
+parse_brl <- function(s) {
+  if (is.na(s)) return(NA_real_)
+  s |>
+    str_remove_all("\\.(?=[0-9]{3})") |>   # tira pontos de milhar
+    str_replace(",", ".") |>               # vírgula decimal → ponto
+    as.numeric()
+}
 
-  m <- str_match(dispositivo, rgx_contextual)
-  valor_str <- if (!is.na(m[1, 1])) m[1, ncol(m)] else NA_character_
+# Classifica CADA R$ encontrado no dispositivo segundo seu contexto e
+# distribui em 3 colunas: valor_morais, valor_materiais, valor_multa.
+#
+# Para cada R$, olha janela de 120 chars antes + 40 depois e classifica:
+#   - DESCARTAR  → R$ próximo de "duplicata", "boleto", "título", "débito",
+#                  "levantamento", "depósito de fls", "custas", "honorários",
+#                  "UFESPs". Não vai para nenhuma coluna.
+#   - MULTA      → "multa", "astreintes", "pena de", "cominatória"
+#   - MORAL      → "dano(s) moral(is)", "morais"
+#   - MATERIAL   → "dano(s) material(is)", "devolução", "restitu...",
+#                  "valor(es) pago(s)", "devolver", "restituir"
+#
+# Regras dos múltiplos R$ na mesma categoria:
+#   - morais  → primeiro encontrado (geralmente é único)
+#   - materiais → o MAIOR (sentenças listam várias parcelas)
+#   - multa   → primeiro
+#
+# Retorna lista nomeada (morais, materiais, multa).
 
-  # se não achou contextual, pega o primeiro R$ do dispositivo
-  if (is.na(valor_str)) {
-    valor_str <- str_extract(
-      dispositivo,
-      "R\\$\\s?[0-9]{1,3}(?:\\.[0-9]{3})*(?:,[0-9]{2})?"
-    ) |> str_remove("R\\$\\s?")
+RGX_DINHEIRO_LOC <- "R\\$\\s?[0-9]+(?:\\.[0-9]{3})*(?:,[0-9]{2})?"
+
+extrair_valores_dispositivo <- function(disp) {
+  vazio <- list(morais = NA_real_, materiais = NA_real_, multa = NA_real_)
+  if (is.na(disp) || nchar(disp) == 0) return(vazio)
+
+  locs <- str_locate_all(disp, RGX_DINHEIRO_LOC)[[1]]
+  if (nrow(locs) == 0) return(vazio)
+
+  morais <- materiais <- multa <- NA_real_
+
+  for (i in seq_len(nrow(locs))) {
+    inicio <- locs[i, 1]; fim <- locs[i, 2]
+    raw    <- str_sub(disp, inicio, fim)
+    valor  <- parse_brl(str_remove(raw, "R\\$\\s?"))
+    if (is.na(valor)) next
+
+    antes  <- str_sub(disp, max(1, inicio - 120), inicio - 1)
+    depois <- str_sub(disp, fim + 1, min(nchar(disp), fim + 40))
+    ctx    <- paste(antes, depois)
+
+    # 1) DESCARTAR — débitos, títulos, boletos, levantamentos, custas
+    if (str_detect(ctx, regex(
+      "duplicata|t[íi]tulo(s)?\\s+(protestad|sem\\s+causa|mercantil)|
+       boleto|d[ée]bito|valor\\s+protestad|
+       levantamento|dep[óo]sito\\s+de\\s+fls|alvar[áa]|
+       custas|honor[áa]rios|UFESPs?|ufesp",
+      ignore_case = TRUE, comments = TRUE))) {
+      next
+    }
+
+    # 2) MULTA
+    if (str_detect(ctx, regex(
+      "multa|astreintes|cominat[óo]ria|pena\\s+de", ignore_case = TRUE))) {
+      if (is.na(multa)) multa <- valor
+      next
+    }
+
+    # 3) MORAL
+    if (str_detect(ctx, regex(
+      "dano(s)?\\s+moral(is)?|\\bmorais\\b", ignore_case = TRUE))) {
+      if (is.na(morais)) morais <- valor
+      next
+    }
+
+    # 4) MATERIAL / devolução / restituição
+    if (str_detect(ctx, regex(
+      "dano(s)?\\s+materia(is|l)|devolu[çc][ãa]o|restitu[íi]|
+       devolver|restituir|valor(es)?\\s+pago(s)?|reembols",
+      ignore_case = TRUE, comments = TRUE))) {
+      if (is.na(materiais) || valor > materiais) materiais <- valor
+      next
+    }
+
+    # 5) Caso o contexto contenha "condeno...indeniza..." sem especificar
+    #    morais/materiais, presumimos MORAL (caso comum em sentenças sucintas)
+    if (str_detect(ctx, regex(
+      "condeno?[^.]*indeniza[çc][ãa]o|a\\s+t[íi]tulo\\s+de\\s+indeniza",
+      ignore_case = TRUE))) {
+      if (is.na(morais)) morais <- valor
+      next
+    }
+
+    # 6) FALLBACK GENÉRICO — "condeno/condenar...R$ X" sem categoria explícita
+    #    Já passaram pelos descartes (custas/multa/débito/duplicata/etc.).
+    #    Quando a sentença só diz "condenar a pagar R$ X" sem dizer
+    #    moral/material, no contexto desta empresa (98% danos morais a
+    #    consumidores), atribuímos a valor_morais.
+    if (str_detect(ctx, regex(
+      "condeno?|condenar.{0,40}(a\\s+)?pag",
+      ignore_case = TRUE))) {
+      if (is.na(morais)) morais <- valor
+      next
+    }
   }
 
-  if (is.na(valor_str)) return(NA_real_)
-
-  valor_str |>
-    str_remove_all("\\.(?=[0-9]{3})") |>
-    str_replace(",", ".") |>
-    as.numeric()
+  list(morais = morais, materiais = materiais, multa = multa)
 }
 
 # ── Relatório e Fundamentação ────────────────────────────────────────────────
@@ -266,14 +347,20 @@ cjpg <- cjpg |>
     relatorio_txt     = map_chr(julgado, extrair_relatorio),
     fundamentacao_txt = map_chr(julgado, extrair_fundamentacao),
     dispositivo_txt   = map_chr(julgado, extrair_dispositivo),
-    valor_indenizacao = map_dbl(dispositivo_txt, extrair_valor_condenacao)
+    .valores          = map(dispositivo_txt, extrair_valores_dispositivo),
+    valor_morais      = map_dbl(.valores, "morais"),
+    valor_materiais   = map_dbl(.valores, "materiais"),
+    valor_multa       = map_dbl(.valores, "multa"),
+    valor_total       = pmap_dbl(
+      list(valor_morais, valor_materiais),
+      \(m, mat) {
+        s <- sum(c(m, mat), na.rm = TRUE)
+        if (s == 0 && is.na(m) && is.na(mat)) NA_real_ else s
+      }
+    )
   ) |>
+  select(-.valores) |>
   mutate(
-    valor_indenizacao = if_else(
-      valor_indenizacao >= 500 & valor_indenizacao <= 100000,
-      valor_indenizacao,
-      NA_real_
-    ),
     tipo_decisao_cpc = classificar_tipo_decisao(
       classe, resultado_dispositivo, dispositivo_txt
     )
@@ -315,32 +402,45 @@ cat("Processos com >1 linha:", nrow(multi), "\n")
 cat("Linhas envolvidas:", sum(multi$n_decisoes), "\n")
 print(head(multi, 15))
 
-cat("=== VALORES DE INDENIZAÇÃO — 1ª INSTÂNCIA ===\n")
-cat("Processos com valor extraído:", sum(!is.na(cjpg$valor_indenizacao)), "\n\n")
+cat("=== VALORES DE CONDENAÇÃO — 1ª INSTÂNCIA ===\n")
+cat("Com valor_morais   :", sum(!is.na(cjpg$valor_morais)),    "\n")
+cat("Com valor_materiais:", sum(!is.na(cjpg$valor_materiais)), "\n")
+cat("Com valor_multa    :", sum(!is.na(cjpg$valor_multa)),     "\n\n")
 
+cat("--- valor_morais ---\n")
 cjpg |>
-  filter(!is.na(valor_indenizacao)) |>
+  filter(!is.na(valor_morais)) |>
   summarise(
-    n       = n(),
-    minimo  = min(valor_indenizacao),
-    p25     = quantile(valor_indenizacao, 0.25),
-    mediana = median(valor_indenizacao),
-    media   = round(mean(valor_indenizacao), 2),
-    p75     = quantile(valor_indenizacao, 0.75),
-    maximo  = max(valor_indenizacao)
-  ) |>
-  print()
+    n = n(), min = min(valor_morais),
+    p25 = quantile(valor_morais, 0.25),
+    mediana = median(valor_morais),
+    media = round(mean(valor_morais), 2),
+    p75 = quantile(valor_morais, 0.75),
+    max = max(valor_morais)
+  ) |> print()
 
-cat("\n=== FAIXAS DE VALOR (1ª INST.) ===\n")
+cat("\n--- valor_materiais ---\n")
 cjpg |>
-  filter(!is.na(valor_indenizacao)) |>
+  filter(!is.na(valor_materiais)) |>
+  summarise(
+    n = n(), min = min(valor_materiais),
+    p25 = quantile(valor_materiais, 0.25),
+    mediana = median(valor_materiais),
+    media = round(mean(valor_materiais), 2),
+    p75 = quantile(valor_materiais, 0.75),
+    max = max(valor_materiais)
+  ) |> print()
+
+cat("\n=== FAIXAS DE VALOR — dano moral (1ª inst.) ===\n")
+cjpg |>
+  filter(!is.na(valor_morais)) |>
   mutate(
     faixa = case_when(
-      valor_indenizacao <  2000  ~ "até R$ 2.000",
-      valor_indenizacao <  5000  ~ "R$ 2.001 a R$ 5.000",
-      valor_indenizacao < 10000  ~ "R$ 5.001 a R$ 10.000",
-      valor_indenizacao < 20000  ~ "R$ 10.001 a R$ 20.000",
-      TRUE                       ~ "acima de R$ 20.000"
+      valor_morais <  2000  ~ "até R$ 2.000",
+      valor_morais <  5000  ~ "R$ 2.001 a R$ 5.000",
+      valor_morais < 10000  ~ "R$ 5.001 a R$ 10.000",
+      valor_morais < 20000  ~ "R$ 10.001 a R$ 20.000",
+      TRUE                  ~ "acima de R$ 20.000"
     )
   ) |>
   count(faixa, sort = TRUE) |>
@@ -402,4 +502,4 @@ cjpg |>
 saveRDS(cjpg, "dados/compilados/cjpg.rds")
 write.csv(cjpg, "dados/compilados/cjpg.csv", row.names = FALSE, fileEncoding = "UTF-8")
 
-message("\nEtapa 9 concluida. Novas colunas em cjpg: valor_indenizacao, tem_tutela_deferida, revelia, tipo_decisao_cpc, tipo_duplicata, decisao_canonica")
+message("\nEtapa 9 concluida. Novas colunas em cjpg: valor_morais, valor_materiais, valor_multa, valor_total, tem_tutela_deferida, revelia, tipo_decisao_cpc, tipo_duplicata, decisao_canonica")

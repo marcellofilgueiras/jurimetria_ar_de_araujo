@@ -30,9 +30,13 @@ _helpers.R                → EMPRESA_RGX, CLASSES_MERITO, CLASSES_EXECUCAO (sou
 08_favorabilidade.R       → dispositivo + papel + favorabilidade
 09_enriquecer.R           → flags temáticas, valor, tipo_decisao_cpc, decisão canônica
 10_dt_validacao.R         → DT interativa (todas as sentenças, com zebra por processo)
-11_graficos.R             → 6 PNGs em analise/graficos/ (série, comarcas, valor, facets)
+11_graficos.R             → 7 PNGs em analise/graficos/
+11b_tempo_tramitacao.R    → tjsp_ler_movimentacao() + coluna tempo_tramitacao_dias
 12_precedentes.R          → top 30 precedentes campeões (CSV + DT navegável)
 13_relatorio.R            → relatório jurimétrico (.txt) + 2 word clouds (.html)
+14_dashboard.Rmd          → dashboard flexdashboard único — fecha o pacote
+                            Render: rmarkdown::render("14_dashboard.Rmd",
+                                                      output_file="analise/dashboard.html")
 
 ## ARQUIVOS DE DADOS
 dados/compilados/cjsg.rds        → acórdãos (papel, favorabilidade, flags temáticas)

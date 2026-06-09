@@ -75,7 +75,7 @@ cjsg <- cjsg |>
 
 # Flags temáticas (tem_protesto, tem_danos, etc.) agora vivem em 09_enriquecer.R
 
-cat("\n=== FLAGS TEMÁTICAS — 2ª INSTÂNCIA (acórdãos) ===\n")
+# === FLAGS TEMÁTICAS — 2ª INSTÂNCIA (acórdãos) ===
 cjsg |>
   summarise(
     tem_protesto     = sum(tem_protesto,     na.rm = TRUE),
@@ -88,7 +88,7 @@ cjsg |>
   pivot_longer(-total, names_to = "flag", values_to = "n") |>
   mutate(pct = round(100 * n / total, 1)) 
 
-#cat("\n=== FLAGS TEMÁTICAS — 1ª INSTÂNCIA (sentenças) ===\n")
+# === FLAGS TEMÁTICAS — 1ª INSTÂNCIA (sentenças) ===\n")
 cjpg |>
   summarise(
     tem_protesto     = sum(tem_protesto,     na.rm = TRUE),
@@ -101,7 +101,7 @@ cjpg |>
   pivot_longer(-total, names_to = "flag", values_to = "n") |>
   mutate(pct = round(100 * n / total, 1)) 
 
-#cat("\n=== JULGADOS COM TODOS OS TEMAS (mais similares ao caso FAM) ===\n")
+# === JULGADOS COM TODOS OS TEMAS (mais similares ao caso FAM) ===\n")
 cjsg |>
   filter(tem_protesto & tem_danos & tem_duplicata) |>
 #  select(processo, comarca, data_julgamento, ementa) |>

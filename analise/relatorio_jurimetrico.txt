@@ -4,7 +4,7 @@
   A R DE ARAÚJO COMUNICAÇÕES ME (GUIA PLUS / LISTA REGIONAL BRASIL)
   Tribunal de Justiça do Estado de São Paulo — 1ª instância
 ====================================================================== 
-  Gerado em: 07/06/2026 14:09 
+  Gerado em: 09/06/2026 00:35 
 ====================================================================== 
 
 ---------------------------------------------------------------------- 
@@ -13,7 +13,7 @@
   • Base: 243 sentenças únicas de 1ª instância (2017–2026)
   • Em 207 sentenças, a empresa figura como RÉ (85.2%)
   • Em 159 de 180 decisões de mérito, a solução foi PRÓ-CONSUMIDOR (88.3%)
-  • Indenização: mediana R$ 4.200 (média R$ 4.882)
+  • Indenização: mediana R$ 5.000 (média R$ 5.895)
   • Tempo entre ajuizamento e sentença: mediana 162 dias (~5.4 meses)
   • Tutela de urgência deferida: 30 sentenças (12.3%)
 
@@ -100,23 +100,29 @@
   >>> TAXA PRÓ-CONSUMIDOR (decisões de mérito): 88.3% (159 de 180)
 
 ---------------------------------------------------------------------- 
-7. VALORES DE INDENIZAÇÃO — 1ª INSTÂNCIA
-   (extraídos do DISPOSITIVO de cada sentença canônica)
+7. VALORES DE CONDENAÇÃO — DANOS MORAIS (1ª instância)
+   (extraídos do DISPOSITIVO, classificados por contexto)
 ---------------------------------------------------------------------- 
-  Sentenças com valor identificado : 53
-  Valor mínimo                     : R$ 500
-  P25                              : R$ 1.500
-  Mediana                          : R$ 4.200
-  Média                            : R$ 4.882
-  P75                              : R$ 5.000
-  Valor máximo                     : R$ 52.800
+  Sentenças com valor identificado : 25
+  Valor mínimo                     : R$ 3.000
+  P25                              : R$ 5.000
+  Mediana                          : R$ 5.000
+  Média                            : R$ 5.895
+  P75                              : R$ 8.000
+  Valor máximo                     : R$ 10.000
 
   Faixas de valor:
-    R$ 5.001 a R$ 10.000      :  17 (32.1%)
-    até R$ 2.000             :  17 (32.1%)
-    R$ 2.001 a R$ 5.000       :  13 (24.5%)
-    R$ 10.001 a R$ 20.000     :   5 ( 9.4%)
-    acima de R$ 20.000        :   1 ( 1.9%)
+    R$ 5.001 a R$ 10.000      :  16 (64.0%)
+    R$ 2.001 a R$ 5.000       :   5 (20.0%)
+    R$ 10.001 a R$ 20.000     :   4 (16.0%)
+
+---------------------------------------------------------------------- 
+7b. CONDENAÇÕES EM DANOS MATERIAIS / DEVOLUÇÃO (1ª instância)
+---------------------------------------------------------------------- 
+  Sentenças com devolução/material : 17
+  Mediana                          : R$ 1.740
+  Média                            : R$ 5.558
+  Máximo                           : R$ 52.800
 
 ---------------------------------------------------------------------- 
 8. TEMPO ENTRE AJUIZAMENTO E SENTENÇA

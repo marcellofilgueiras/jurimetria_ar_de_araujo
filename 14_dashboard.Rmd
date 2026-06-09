@@ -1,0 +1,359 @@
+---
+title: "Jurimetria — A R de Araújo Comunicações ME"
+output:
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: fill
+    social: ["twitter", "linkedin"]
+    source_code: "https://github.com/marcellofilgueiras/jurimetria_ar_de_araujo"
+    theme:
+      bootswatch: flatly
+      primary: "#2c5282"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+library(flexdashboard)
+library(tidyverse)
+library(scales)
+library(DT)
+library(plotly)
+
+setwd_root <- "C:/Users/marce/OneDrive/Documents/R2/jurimetria_thierry"
+cjpg <- readRDS(file.path(setwd_root, "dados/compilados/cjpg.rds"))
+cjpg_can <- cjpg |> filter(decisao_canonica)
+
+# Métricas base
+n_can     <- nrow(cjpg_can)
+merito_re <- cjpg_can |>
+  filter(papel == "re",
+         tipo_decisao_cpc %in% c("merito_487_I", "homologacao_487_III"),
+         resultado_dispositivo %in% c("procedente","parcial","improcedente","homologacao"))
+pct_pro   <- 100 * sum(merito_re$resultado_dispositivo != "improcedente") / nrow(merito_re)
+med_val   <- median(cjpg_can$valor_morais, na.rm = TRUE)
+med_tempo <- median(cjpg_can$tempo_tramitacao_dias, na.rm = TRUE)
+
+tema <- theme_minimal(base_size = 11) +
+  theme(plot.title = element_text(face = "bold"),
+        panel.grid.minor = element_blank())
+```
+
+# Visão Geral {data-icon="fa-chart-line"}
+
+## Row {data-height=120}
+
+### Sentenças canônicas
+
+```{r}
+valueBox(n_can, icon = "fa-gavel", color = "#2c5282")
+```
+
+### Taxa pró-consumidor (mérito)
+
+```{r}
+valueBox(sprintf("%.1f%%", pct_pro), icon = "fa-balance-scale", color = "#2f855a")
+```
+
+### Mediana de dano moral
+
+```{r}
+valueBox(paste0("R$ ", format(round(med_val), big.mark = ".")),
+         icon = "fa-money-bill-wave", color = "#c2410c")
+```
+
+### Mediana de tempo até sentença
+
+```{r}
+valueBox(sprintf("%d dias (~%.1f mo)", med_tempo, med_tempo/30),
+         icon = "fa-clock", color = "#6b46c1")
+```
+
+## Row
+
+### Sentenças por ano {data-width=600}
+
+```{r}
+serie <- cjpg_can |> mutate(ano = year(disponibilizacao)) |> count(ano)
+p <- ggplot(serie, aes(ano, n)) +
+  geom_line(color = "#2c5282", linewidth = 1) +
+  geom_point(color = "#2c5282", size = 3) +
+  scale_x_continuous(breaks = seq(2017, 2026, 1)) +
+  labs(x = NULL, y = "Sentenças") + tema
+ggplotly(p)
+```
+
+### Top 10 comarcas {data-width=400}
+
+```{r}
+comarcas <- cjpg_can |> count(comarca, sort = TRUE) |> slice_head(n = 10) |>
+  mutate(comarca = fct_reorder(comarca, n))
+p <- ggplot(comarcas, aes(n, comarca)) +
+  geom_col(fill = "#2f855a") +
+  labs(x = "Sentenças", y = NULL) + tema
+ggplotly(p)
+```
+
+# Decisões {data-icon="fa-gavel"}
+
+## Row
+
+### Pró × Contra consumidor (mérito) {data-width=400}
+
+```{r}
+df_pc <- merito_re |>
+  mutate(lado = if_else(resultado_dispositivo == "improcedente",
+                        "Contra", "Pró")) |>
+  count(lado) |> mutate(pct = 100 * n / sum(n))
+
+p <- ggplot(df_pc, aes(lado, pct, fill = lado)) +
+  geom_col(width = 0.6) +
+  geom_text(aes(label = sprintf("%.1f%%\n(n=%d)", pct, n)),
+            vjust = -0.2, fontface = "bold") +
+  scale_fill_manual(values = c("Pró" = "#2f855a", "Contra" = "#c53030")) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.2))) +
+  labs(x = NULL, y = "% das sentenças") + tema +
+  theme(legend.position = "none")
+p
+```
+
+### Resultado por papel da empresa {data-width=600}
+
+```{r}
+df_papel <- cjpg_can |>
+  filter(!is.na(papel),
+         tipo_decisao_cpc %in% c("merito_487_I", "homologacao_487_III")) |>
+  mutate(
+    papel = factor(papel, levels = c("re","autora"),
+                   labels = c("Empresa RÉ","Empresa AUTORA")),
+    subtipo = case_when(
+      resultado_dispositivo == "procedente"   ~ "Integral",
+      resultado_dispositivo == "parcial"      ~ "Parcial",
+      resultado_dispositivo == "homologacao"  ~ "Homologação",
+      resultado_dispositivo == "improcedente" ~ "Improcedente"
+    ),
+    subtipo = factor(subtipo, levels = c("Integral","Parcial","Homologação","Improcedente"))
+  ) |>
+  count(papel, subtipo) |>
+  group_by(papel) |> mutate(pct = 100 * n / sum(n)) |> ungroup()
+
+p <- ggplot(df_papel, aes(subtipo, pct, fill = subtipo)) +
+  geom_col() +
+  facet_wrap(~ papel) +
+  scale_fill_manual(values = c("Integral"="#2f855a","Parcial"="#9ae6b4",
+                               "Homologação"="#90cdf4","Improcedente"="#c53030")) +
+  labs(x = NULL, y = "%", fill = NULL) + tema +
+  theme(legend.position = "bottom",
+        axis.text.x = element_text(angle = 30, hjust = 1))
+p
+```
+
+## Row
+
+### Tipo de decisão (CPC)
+
+```{r}
+df_cpc <- cjpg_can |> count(tipo_decisao_cpc, sort = TRUE) |>
+  mutate(pct = 100 * n / sum(n),
+         tipo_decisao_cpc = fct_reorder(tipo_decisao_cpc, n))
+p <- ggplot(df_cpc, aes(n, tipo_decisao_cpc)) +
+  geom_col(fill = "#2c5282") +
+  geom_text(aes(label = sprintf("%d (%.1f%%)", n, pct)), hjust = -0.1) +
+  scale_x_continuous(expand = expansion(mult = c(0, 0.2))) +
+  labs(x = "Sentenças", y = NULL) + tema
+p
+```
+
+# Tempo de Tramitação {data-icon="fa-clock"}
+
+## Row
+
+### Distribuição do tempo até sentença {data-width=700}
+
+```{r}
+base_t <- cjpg_can |> filter(papel == "re",
+                              tipo_decisao_cpc == "merito_487_I",
+                              !is.na(tempo_tramitacao_dias),
+                              tempo_tramitacao_dias >= 0,
+                              tempo_tramitacao_dias <= 3650)
+med  <- median(base_t$tempo_tramitacao_dias)
+mn   <- mean(base_t$tempo_tramitacao_dias)
+
+p <- ggplot(base_t, aes(tempo_tramitacao_dias)) +
+  geom_histogram(binwidth = 90, fill = "#6b46c1", color = "white", boundary = 0) +
+  geom_vline(xintercept = med, linetype = "dashed", color = "grey20") +
+  geom_vline(xintercept = mn,  linetype = "dotted", color = "#1f4e79") +
+  scale_x_continuous(breaks = seq(0, 3650, 365),
+                     labels = function(x) paste0(round(x/365, 1),"a")) +
+  labs(x = "Anos de tramitação", y = "Sentenças",
+       title = sprintf("Mediana %d dias (~%.1f mo) | Média %d dias",
+                       med, med/30, round(mn))) + tema
+p
+```
+
+### Faixas de tempo {data-width=300}
+
+```{r}
+faixas <- base_t |>
+  mutate(faixa = case_when(
+    tempo_tramitacao_dias <  180 ~ "Até 6 m",
+    tempo_tramitacao_dias <  365 ~ "6m a 1a",
+    tempo_tramitacao_dias <  730 ~ "1 a 2a",
+    tempo_tramitacao_dias < 1095 ~ "2 a 3a",
+    TRUE                         ~ ">3a"
+  ),
+  faixa = factor(faixa, levels = c("Até 6 m","6m a 1a","1 a 2a","2 a 3a",">3a"))
+  ) |> count(faixa) |> mutate(pct = 100 * n / sum(n))
+
+p <- ggplot(faixas, aes(faixa, pct)) +
+  geom_col(fill = "#6b46c1") +
+  geom_text(aes(label = sprintf("%.1f%%", pct)), vjust = -0.3) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.2))) +
+  labs(x = NULL, y = "%") + tema
+p
+```
+
+# Quantum {data-icon="fa-money-bill-wave"}
+
+## Row
+
+### Distribuição dos valores {data-width=700}
+
+```{r}
+v <- cjpg_can |> filter(!is.na(valor_morais))
+medv <- median(v$valor_morais)
+mnv  <- mean(v$valor_morais)
+
+p <- ggplot(v, aes(valor_morais)) +
+  geom_histogram(binwidth = 2500, fill = "#c2410c", color = "white", boundary = 0) +
+  geom_vline(xintercept = medv, linetype = "dashed", color = "grey20") +
+  geom_vline(xintercept = mnv,  linetype = "dotted", color = "#1f4e79") +
+  scale_x_continuous(labels = label_dollar(prefix = "R$ ", big.mark = ".")) +
+  labs(x = "Valor (R$)", y = "Sentenças",
+       title = sprintf("Mediana R$ %s | Média R$ %s",
+                       format(round(medv), big.mark = "."),
+                       format(round(mnv),  big.mark = "."))) + tema
+p
+```
+
+### Evolução do quantum por ano {data-width=500}
+
+```{r}
+val_ano <- cjpg_can |> filter(!is.na(valor_morais)) |>
+  mutate(ano = year(disponibilizacao)) |>
+  group_by(ano) |>
+  summarise(mediana = median(valor_morais),
+            p25 = quantile(valor_morais, 0.25),
+            p75 = quantile(valor_morais, 0.75),
+            n = n(), .groups = "drop")
+p <- ggplot(val_ano, aes(ano, mediana)) +
+  geom_ribbon(aes(ymin = p25, ymax = p75), fill = "#fed7aa", alpha = 0.6) +
+  geom_line(color = "#c2410c", linewidth = 1) +
+  geom_point(color = "#c2410c", size = 2.5) +
+  scale_x_continuous(breaks = seq(2017, 2026, 1)) +
+  scale_y_continuous(labels = label_dollar(prefix = "R$ ", big.mark = ".")) +
+  labs(x = NULL, y = "Mediana (R$)") + tema
+p
+```
+
+# Precedentes {data-icon="fa-star"}
+
+## Row
+
+### Top 30 precedentes (ranqueados por score 0-6)
+
+```{r}
+prec <- read.csv(file.path(setwd_root, "analise/precedentes_campeoes.csv"),
+                 stringsAsFactors = FALSE, encoding = "UTF-8") |>
+  select(score_total, processo, data, comarca, vara, magistrado,
+         resultado_dispositivo, valor_morais,
+         tem_protesto, tem_duplicata, tem_rel_juridica, tem_contrato,
+         tem_tutela_deferida, dispositivo_trecho)
+
+datatable(
+  prec,
+  rownames = FALSE,
+  extensions = c("Buttons"),
+  filter = "top",
+  options = list(
+    pageLength = 15,
+    scrollX = TRUE,
+    dom = "Bfrtip",
+    buttons = c("csv","excel"),
+    columnDefs = list(
+      list(width = "400px",
+           targets = which(names(prec) == "dispositivo_trecho") - 1),
+      list(className = "dt-center",
+           targets = which(names(prec) == "score_total") - 1)
+    )
+  )
+) |>
+  formatStyle("score_total",
+              background = styleColorBar(c(0, max(prec$score_total)), "#9ae6b4"),
+              fontWeight = "bold") |>
+  formatCurrency("valor_morais", currency = "R$ ",
+                 mark = ".", dec.mark = ",", digits = 0)
+```
+
+# Todas as Sentenças {data-icon="fa-table"}
+
+## Row
+
+### 243 sentenças canônicas (filtros no topo de cada coluna)
+
+```{r}
+tab <- cjpg_can |>
+  mutate(data = format(disponibilizacao, "%d/%m/%Y")) |>
+  select(processo, data, comarca, classe, papel,
+         tipo_decisao_cpc, resultado_dispositivo, favorabilidade,
+         valor_morais, tempo_tramitacao_dias,
+         tem_protesto, tem_danos, tem_duplicata, tem_contrato,
+         dispositivo_txt)
+
+datatable(
+  tab,
+  rownames = FALSE,
+  filter = "top",
+  options = list(
+    pageLength = 15,
+    scrollX = TRUE,
+    dom = "frtip",
+    columnDefs = list(
+      list(width = "400px",
+           targets = which(names(tab) == "dispositivo_txt") - 1)
+    )
+  )
+) |>
+  formatStyle("favorabilidade",
+              backgroundColor = styleEqual(
+                c("consumidor_venceu","empresa_venceu","indefinido"),
+                c("#d4edda","#f8d7da","#fff3cd")
+              )) |>
+  formatCurrency("valor_morais", currency = "R$ ",
+                 mark = ".", dec.mark = ",", digits = 0)
+```
+
+# Sobre {data-icon="fa-info-circle"}
+
+## Row
+
+### Metodologia
+
+**Objeto:** Pesquisa jurimétrica sobre **A R de Araújo Comunicações ME** (também conhecida como **Guia Plus** / **Lista Regional Brasil**), empresa investigada pela prática de cobrança por publicidade em lista telefônica não contratada, com posterior protesto de duplicatas e inscrição em cadastros de inadimplentes.
+
+**Fonte:** TJSP — ESAJ (consultas CJSG e CJPG, dados públicos).
+
+**Coleta:** pacote R [`{tjsp}`](https://github.com/jjesusfilho/tjsp) (Jose de Jesus Filho).
+
+**Recorte temporal:** 2017–2026 (2026 incompleto).
+
+**Base bruta:** 270 linhas de sentenças. Filtragem `decisao_canonica` para 243 sentenças únicas (descarta duplicatas do scraping e atos repetidos por processo).
+
+**Pipeline:** 14 scripts numerados em `jurimetria_ar_de_araujo/`, do download à geração deste dashboard.
+
+### Definições
+
+- **`decisao_canonica`**: marca apenas 1 linha por processo, privilegiando decisão de mérito (art. 487) sobre execução (art. 924) e, dentro da mesma categoria, a mais recente.
+- **`tipo_decisao_cpc`**: classificação automática em `merito_487_I`, `homologacao_487_III`, `extincao_sem_merito_485`, `extincao_execucao_924`.
+- **`valor_morais`**: extraído do dispositivo (não do relatório/petição inicial). Filtro 500 ≤ valor ≤ 100.000.
+- **`tempo_tramitacao_dias`**: `data_sentenca − MIN(dt_mov)` por processo (proxy para ajuizamento).
+- **Pró-consumidor**: empresa ré + (procedente, parcial ou homologação) | empresa autora + improcedente.

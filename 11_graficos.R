@@ -76,14 +76,14 @@ ggsave(file.path(DIR_GRAF, "02_top_comarcas.png"), g2,
 
 # ── 3. EVOLUÇÃO DO VALOR MEDIANO POR ANO ────────────────────────────────────
 val_por_ano <- cjpg |>
-  filter(!is.na(valor_indenizacao)) |>
+  filter(!is.na(valor_morais)) |>
   mutate(ano = year(disponibilizacao)) |>
   group_by(ano) |>
   summarise(
     n       = n(),
-    mediana = median(valor_indenizacao),
-    p25     = quantile(valor_indenizacao, 0.25),
-    p75     = quantile(valor_indenizacao, 0.75),
+    mediana = median(valor_morais),
+    p25     = quantile(valor_morais, 0.25),
+    p75     = quantile(valor_morais, 0.75),
     .groups = "drop"
   )
 
@@ -107,12 +107,12 @@ ggsave(file.path(DIR_GRAF, "03_valor_mediana_por_ano.png"), g3,
        width = 9, height = 5, dpi = 150)
 
 # ── 4. HISTOGRAMA DE VALORES ────────────────────────────────────────────────
-med_val <- median(cjpg$valor_indenizacao, na.rm = TRUE)
-mean_val <- mean(cjpg$valor_indenizacao, na.rm = TRUE)
+med_val <- median(cjpg$valor_morais, na.rm = TRUE)
+mean_val <- mean(cjpg$valor_morais, na.rm = TRUE)
 
 g4 <- cjpg |>
-  filter(!is.na(valor_indenizacao)) |>
-  ggplot(aes(valor_indenizacao)) +
+  filter(!is.na(valor_morais)) |>
+  ggplot(aes(valor_morais)) +
   geom_histogram(binwidth = 2500, fill = "#c2410c", color = "white", boundary = 0) +
   geom_vline(xintercept = med_val,  linetype = "dashed", color = "grey20", linewidth = 0.7) +
   geom_vline(xintercept = mean_val, linetype = "dotted", color = "#1f4e79", linewidth = 0.7) +
@@ -124,8 +124,8 @@ g4 <- cjpg |>
            size = 3.5, color = "#1f4e79") +
   scale_x_continuous(labels = label_dollar(prefix = "R$ ", big.mark = ".")) +
   labs(
-    title    = "Distribuição dos valores de condenação",
-    subtitle = paste0(sum(!is.na(cjpg$valor_indenizacao)),
+    title    = "Distribuição do quantum de dano moral",
+    subtitle = paste0(sum(!is.na(cjpg$valor_morais)),
                       " sentenças com valor extraído do dispositivo (1ª inst.)"),
     x = "Valor (R$)", y = "Sentenças",
     caption = CAPTION
