@@ -224,7 +224,7 @@ medv <- median(v$valor_morais)
 mnv  <- mean(v$valor_morais)
 
 p <- ggplot(v, aes(valor_morais)) +
-  geom_histogram(binwidth = 2500, fill = "#c2410c", color = "white", boundary = 0) +
+  geom_histogram(binwidth = 1000, fill = "#c2410c", color = "white", boundary = 0) +
   geom_vline(xintercept = medv, linetype = "dashed", color = "grey20") +
   geom_vline(xintercept = mnv,  linetype = "dotted", color = "#1f4e79") +
   scale_x_continuous(labels = label_dollar(prefix = "R$ ", big.mark = ".")) +

@@ -107,13 +107,16 @@ ggsave(file.path(DIR_GRAF, "03_valor_mediana_por_ano.png"), g3,
        width = 9, height = 5, dpi = 150)
 
 # ── 4. HISTOGRAMA DE VALORES ────────────────────────────────────────────────
-med_val <- median(cjpg$valor_morais, na.rm = TRUE)
-mean_val <- mean(cjpg$valor_morais, na.rm = TRUE)
+med_val  <- median(cjpg$valor_morais, na.rm = TRUE)
+mean_val <- mean(cjpg$valor_morais,  na.rm = TRUE)
+p25_val  <- as.numeric(quantile(cjpg$valor_morais, 0.25, na.rm = TRUE))
+p75_val  <- as.numeric(quantile(cjpg$valor_morais, 0.75, na.rm = TRUE))
+brl <- function(x) format(round(x), big.mark = ".", decimal.mark = ",")
 
 g4 <- cjpg |>
   filter(!is.na(valor_morais)) |>
   ggplot(aes(valor_morais)) +
-  geom_histogram(binwidth = 2500, fill = "#c2410c", color = "white", boundary = 0) +
+  geom_histogram(binwidth = 1000, fill = "#c2410c", color = "white", boundary = 0) +
   geom_vline(xintercept = med_val,  linetype = "dashed", color = "grey20", linewidth = 0.7) +
   geom_vline(xintercept = mean_val, linetype = "dotted", color = "#1f4e79", linewidth = 0.7) +
   annotate("text", x = med_val,  y = Inf, vjust = 1.5, hjust = -0.05,
@@ -134,6 +137,128 @@ g4 <- cjpg |>
 
 ggsave(file.path(DIR_GRAF, "04_histograma_valores.png"), g4,
        width = 9, height = 5, dpi = 150)
+
+# ── 4b. DENSIDADE + HISTOGRAMA (KDE sobreposto) — dano moral ────────────────
+g4b <- cjpg |>
+  filter(!is.na(valor_morais)) |>
+  ggplot(aes(valor_morais)) +
+  geom_histogram(aes(y = after_stat(density)),
+                 binwidth = 1000, fill = "#c2410c", color = "white",
+                 alpha = 0.6, boundary = 0) +
+  geom_density(color = "#1f4e79", linewidth = 1) +
+  geom_vline(xintercept = med_val,  linetype = "dashed", color = "grey20") +
+  scale_x_continuous(labels = label_dollar(prefix = "R$ ", big.mark = ".")) +
+  labs(
+    title    = "Densidade do quantum de dano moral",
+    subtitle = "Histograma + KDE — revela bimodalidade (R$ 4-5k e R$ 9-10k)",
+    x = "Valor (R$)", y = "Densidade",
+    caption = CAPTION
+  ) + tema
+
+ggsave(file.path(DIR_GRAF, "04b_densidade_morais.png"), g4b,
+       width = 9, height = 5, dpi = 150)
+
+# ── 4c. BOXPLOT por resultado (procedente vs parcial) — dano moral ──────────
+g4c <- cjpg |>
+  filter(!is.na(valor_morais),
+         resultado_dispositivo %in% c("procedente","parcial")) |>
+  mutate(resultado = factor(
+    resultado_dispositivo,
+    levels = c("procedente","parcial"),
+    labels = c("Procedente\n(integral)","Parcial"))) |>
+  ggplot(aes(resultado, valor_morais, fill = resultado)) +
+  geom_boxplot(width = 0.4, alpha = 0.7, outlier.shape = NA) +
+  geom_jitter(width = 0.08, size = 2, alpha = 0.6, color = "grey20") +
+  scale_fill_manual(values = c("#2f855a","#9ae6b4")) +
+  scale_y_continuous(labels = label_dollar(prefix = "R$ ", big.mark = ".")) +
+  labs(
+    title    = "Quantum de dano moral por tipo de procedência",
+    subtitle = "Boxplot com pontos individuais (jitter)",
+    x = NULL, y = "Valor (R$)",
+    caption = CAPTION
+  ) + tema +
+  theme(legend.position = "none")
+
+ggsave(file.path(DIR_GRAF, "04c_boxplot_por_resultado.png"), g4c,
+       width = 8, height = 5, dpi = 150)
+
+# ── 4d. CDF — função de distribuição cumulativa ─────────────────────────────
+g4d <- cjpg |>
+  filter(!is.na(valor_morais)) |>
+  ggplot(aes(valor_morais)) +
+  stat_ecdf(geom = "step", color = "#c2410c", linewidth = 1.2) +
+  geom_hline(yintercept = c(0.25, 0.5, 0.75), linetype = "dotted", color = "grey50") +
+  geom_vline(xintercept = c(p25_val, med_val, p75_val),
+             linetype = "dotted", color = "grey50") +
+  annotate("text", x = med_val, y = 0.5, label = sprintf(" Mediana\n R$ %s", brl(med_val)),
+           hjust = 0, vjust = -0.2, size = 3.3, color = "grey20") +
+  annotate("text", x = p25_val, y = 0.25, label = sprintf(" P25 R$ %s", brl(p25_val)),
+           hjust = 0, vjust = -0.2, size = 3.3, color = "grey20") +
+  annotate("text", x = p75_val, y = 0.75, label = sprintf(" P75 R$ %s", brl(p75_val)),
+           hjust = 0, vjust = -0.2, size = 3.3, color = "grey20") +
+  scale_x_continuous(labels = label_dollar(prefix = "R$ ", big.mark = ".")) +
+  scale_y_continuous(labels = label_percent()) +
+  labs(
+    title    = "Distribuição cumulativa do dano moral",
+    subtitle = "Em y: % de sentenças com valor ≤ x",
+    x = "Valor (R$)", y = "% acumulado das sentenças",
+    caption = CAPTION
+  ) + tema
+
+ggsave(file.path(DIR_GRAF, "04d_cdf_morais.png"), g4d,
+       width = 9, height = 5, dpi = 150)
+
+# ── 4e. HISTOGRAMA — DANOS MATERIAIS (devolução) ────────────────────────────
+mat <- cjpg |> filter(!is.na(valor_materiais))
+med_mat  <- median(mat$valor_materiais)
+mean_mat <- mean(mat$valor_materiais)
+
+g4e <- ggplot(mat, aes(valor_materiais)) +
+  geom_histogram(binwidth = 1500, fill = "#3182ce", color = "white", boundary = 0) +
+  geom_vline(xintercept = med_mat,  linetype = "dashed", color = "grey20", linewidth = 0.7) +
+  geom_vline(xintercept = mean_mat, linetype = "dotted", color = "#1f4e79", linewidth = 0.7) +
+  annotate("text", x = med_mat,  y = Inf, vjust = 1.5, hjust = -0.05,
+           label = paste0("Mediana: R$ ", brl(med_mat)),
+           size = 3.3, color = "grey20") +
+  annotate("text", x = mean_mat, y = Inf, vjust = 3.2, hjust = -0.05,
+           label = paste0("Média: R$ ", brl(mean_mat)),
+           size = 3.3, color = "#1f4e79") +
+  scale_x_continuous(labels = label_dollar(prefix = "R$ ", big.mark = ".")) +
+  labs(
+    title    = "Distribuição de condenações em DANOS MATERIAIS (devolução)",
+    subtitle = paste0(nrow(mat),
+      " sentenças que mandaram empresa devolver valores cobrados indevidamente"),
+    x = "Valor (R$)", y = "Sentenças",
+    caption = CAPTION
+  ) + tema
+
+ggsave(file.path(DIR_GRAF, "04e_histograma_materiais.png"), g4e,
+       width = 9, height = 5, dpi = 150)
+
+# ── 4f. COMPARATIVO MORAIS × MATERIAIS (boxplot lado a lado) ────────────────
+df_comp <- bind_rows(
+  cjpg |> filter(!is.na(valor_morais))    |> transmute(valor = valor_morais,    tipo = "Dano moral"),
+  cjpg |> filter(!is.na(valor_materiais)) |> transmute(valor = valor_materiais, tipo = "Dano material\n(devolução)")
+) |> mutate(tipo = factor(tipo, levels = c("Dano moral","Dano material\n(devolução)")))
+
+g4f <- ggplot(df_comp, aes(tipo, valor, fill = tipo)) +
+  geom_boxplot(width = 0.5, alpha = 0.7, outlier.shape = NA) +
+  geom_jitter(width = 0.08, size = 2, alpha = 0.5, color = "grey20") +
+  scale_fill_manual(values = c("#c2410c", "#3182ce")) +
+  scale_y_continuous(labels = label_dollar(prefix = "R$ ", big.mark = ".")) +
+  coord_cartesian(ylim = c(0, 25000)) +   # corta outlier R$ 52.800 para legibilidade
+  labs(
+    title    = "Morais vs Materiais — comparação direta",
+    subtitle = paste0("n morais = ", sum(!is.na(cjpg$valor_morais)),
+                      " | n materiais = ", sum(!is.na(cjpg$valor_materiais)),
+                      "  (eixo Y cortado em R$ 25k para legibilidade)"),
+    x = NULL, y = "Valor (R$)",
+    caption = CAPTION
+  ) + tema +
+  theme(legend.position = "none")
+
+ggsave(file.path(DIR_GRAF, "04f_comparativo_morais_materiais.png"), g4f,
+       width = 8, height = 5.5, dpi = 150)
 
 # ── 5. FACET WRAP — taxa de procedência por papel (Procedente integral + Parcial empilhados) ──
 df_merito <- cjpg |>

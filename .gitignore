@@ -22,3 +22,7 @@ analise/*_files/
 _inspect.R
 _chk.R
 _dup.R
+
+# Documentos da peça (rascunho/cliente) — não publicar
+*.docx
+relatorio_jurimetrico_FAM.*
